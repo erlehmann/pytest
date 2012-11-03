@@ -16,9 +16,8 @@
 
 import pygame
 
-from pprint import PrettyPrinter
 from random import choice
-from sys import argv
+from sys import argv, stdout
 
 FRAMERATE = 60
 
@@ -42,14 +41,9 @@ class Game(object):
 
         self.clock = pygame.time.Clock()
 
-        self.lastsymbol = ''
-        self.currentsymbol = ''
-        self.keypressed = False
-
-        self.events = {}
-
     def render_text(self, text, color):
         surface = self.font.render(text, 1, color)
+        self.screen.fill(BLACK)
         self.screen.blit(
             surface,
                 (
@@ -57,53 +51,41 @@ class Game(object):
                     self.height/2-(surface.get_height()/2)
                 )
             )
+        pygame.display.flip()
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
-            if (self.lastsymbol == self.currentsymbol):
-                if self.keypressed:
-                    self.store('duplicate positive')
-                else:
-                    self.store('positive')
-            else:
-                if self.keypressed:
-                    self.store('duplicate false positive')
-                else:
-                    self.store('false positive')
-            self.keypressed = True
+            self.log("EVENT", "KEYDOWN")
 
-    def store(self, name):
-        self.events[pygame.time.get_ticks()]=name
+    def log(self, event_type, text):
+        stdout.write(
+            "%s\t%s\t%s\n" % (
+                pygame.time.get_ticks(),
+                event_type,
+                text
+            )
+        )
+        stdout.flush()
 
     def intro(self):
         frames = 99
         for i in range(frames):
             self.clock.tick(FRAMERATE)
-            self.screen.fill(BLACK)
             self.render_text('%i' % (frames-i), WHITE)
-            pygame.display.flip()
 
     def run(self):
+        self.log("EVENT", "START")
         for i in range(self.frames):
             self.clock.tick(FRAMERATE)
             for event in pygame.event.get():
                 self.handle_event(event)
             if (i%FRAMERATE == 0):
-                if (self.keypressed == False) and \
-                    (self.lastsymbol == self.currentsymbol):
-                    self.store('false negative')
-                self.keypressed = False
-                self.screen.fill(BLACK)
-                self.lastsymbol = self.currentsymbol
-                self.currentsymbol = choice(self.symbols)
-                symbolcolor = colors[i/FRAMERATE%len(colors)]
-                self.render_text(self.currentsymbol, symbolcolor)
-                pygame.display.flip()
-                self.store('new symbol')
+                symbol = choice(self.symbols)
+                color = colors[i/FRAMERATE%len(colors)]
+                self.render_text(symbol, color)
+                self.log("SYMBOL", symbol)
 
-    def stats(self):
-        pp = PrettyPrinter(indent=4)
-        pp.pprint(self.events)
+        self.log("EVENT", "END")
 
 if __name__ == '__main__':
     time = int(argv[1])
@@ -118,4 +100,3 @@ if __name__ == '__main__':
     game = Game(time=time, symbols=symbols, colors=colors)
     game.intro()
     game.run()
-    game.stats()
