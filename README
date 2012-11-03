@@ -1,0 +1,13 @@
+This is a tool for testing reaction times.
+
+Testing:
+    ./pytest [seconds] > [filename]
+
+Analysis:
+    ./pytest_analyze < [filename]
+
+The file format used contains tab separated UTF-8 text. The first
+field contains the timestamp. The second field contains the type of
+the record (“EVENT” or “SYMBOL”). The third field contains the event
+(if the type is “EVENT”) or the symbol shown (if the type is
+“SYMBOL”).
