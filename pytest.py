@@ -18,6 +18,7 @@ import pygame
 
 from pprint import PrettyPrinter
 from random import choice
+from sys import argv
 
 FRAMERATE = 60
 
@@ -26,17 +27,18 @@ WHITE = (255, 255, 255)
 
 class Game(object):
 
-    def __init__(self, symbols, colors):
+    def __init__(self, time, symbols, colors):
+        self.frames = time * FRAMERATE
         self.symbols = symbols
         self.colors = colors
 
         pygame.init()
         pygame.display.set_caption('PyTest')
 
-        self.size = self.width, self.height = 640, 480
+        self.size = self.width, self.height = 800, 600
         self.screen = pygame.display.set_mode(self.size)
 
-        self.font = pygame.font.SysFont("monospace", 120)
+        self.font = pygame.font.SysFont("sans", 120)
 
         self.clock = pygame.time.Clock()
 
@@ -46,14 +48,13 @@ class Game(object):
 
         self.events = {}
 
-    def draw_symbol(self, symbol, color):
-        surface = self.font.render(symbol, 1, color)
-        s_width, s_height = surface.get_width(), surface.get_height()
+    def render_text(self, text, color):
+        surface = self.font.render(text, 1, color)
         self.screen.blit(
             surface,
                 (
-                    self.width/2-(s_width/2),
-                    self.height/2-(s_height/2)
+                    self.width/2-(surface.get_height()/2),
+                    self.height/2-(surface.get_height()/2)
                 )
             )
 
@@ -74,9 +75,16 @@ class Game(object):
     def store(self, name):
         self.events[pygame.time.get_ticks()]=name
 
+    def intro(self):
+        frames = 99
+        for i in range(frames):
+            self.clock.tick(FRAMERATE)
+            self.screen.fill(BLACK)
+            self.render_text('%i' % (frames-i), WHITE)
+            pygame.display.flip()
+
     def run(self):
-        pygame.time.wait(1000)
-        for i in range(1200):
+        for i in range(self.frames):
             self.clock.tick(FRAMERATE)
             for event in pygame.event.get():
                 self.handle_event(event)
@@ -89,7 +97,7 @@ class Game(object):
                 self.lastsymbol = self.currentsymbol
                 self.currentsymbol = choice(self.symbols)
                 symbolcolor = colors[i/FRAMERATE%len(colors)]
-                self.draw_symbol(self.currentsymbol, symbolcolor)
+                self.render_text(self.currentsymbol, symbolcolor)
                 pygame.display.flip()
                 self.store('new symbol')
 
@@ -98,6 +106,7 @@ class Game(object):
         pp.pprint(self.events)
 
 if __name__ == '__main__':
+    time = int(argv[1])
     symbols = [u'■', u'▲', u'●', u'◆']
     colors = [
         (115, 210, 22),  # tango green 2
@@ -106,6 +115,7 @@ if __name__ == '__main__':
         (237, 212, 0)  # tango orange 2
     ]
 
-    game = Game(symbols=symbols, colors=colors)
+    game = Game(time=time, symbols=symbols, colors=colors)
+    game.intro()
     game.run()
     game.stats()
