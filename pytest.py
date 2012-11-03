@@ -16,8 +16,10 @@
 
 import pygame
 
+from codecs import getwriter
 from random import choice
 from sys import argv, stdout
+stdout = getwriter('utf8')(stdout)
 
 FRAMERATE = 60
 
