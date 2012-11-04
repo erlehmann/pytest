@@ -1,4 +1,4 @@
-This is a tool for testing reaction times.
+This is a tool for testing reaction times. It shows glyphs, cycling through colors. The task is to press a key once if (and only if) a glyph shown has the same shape as the preceding glyph.
 
 Testing:
     ./pytest [seconds] > [filename]
