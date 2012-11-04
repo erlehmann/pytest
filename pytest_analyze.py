@@ -61,13 +61,24 @@ for row in stdin:
 def average(l):
     return sum(l)/len(l)
 
+def median(l):
+    if len(l)%2 == 1:
+        return sorted(l)[len(l)/2]
+    else:
+        return average(
+            [
+                l[int(len(l)/2.0-0.5)],
+                l[int(len(l)/2.0+0.5)]
+            ]
+        )
+
 def variance(l):
     return [(e - average(l))**2 for e in l]
 
 def standard_deviation(l):
     return sqrt(average(variance(l)))
 
-
+stdout.write('Reaction time median (ms):\n\t%i\n' % median(reaction_times))
 stdout.write('Reaction time average (ms):\n\t%i\n' % average(reaction_times))
 stdout.write('Reaction time standard deviation (ms):\n\t%i\n' % standard_deviation(reaction_times))
 stdout.write('Positives:\n\t%i\n' % len(positives))
